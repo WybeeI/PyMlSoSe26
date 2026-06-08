@@ -1,0 +1,6 @@
+id,name,age,score,city
+1,Alice,25,88.5,Berlin
+2,Bob,thirty,72.0,Hamburg
+3,Charlie,35,,Munich
+4,David,28,91.2,
+5,Eve,22,85.0,Berlin

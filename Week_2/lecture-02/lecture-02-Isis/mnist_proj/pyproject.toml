@@ -1,0 +1,23 @@
+[project]
+name = "mnist_proj"
+version = "0.1.0"
+description = "Tiny MNIST classifier — example project for PyML lecture 2"
+requires-python = ">=3.11"
+dependencies = [
+    "torch>=2.2",
+    "kagglehub",
+    "pillow",
+    "numpy",
+    "matplotlib",
+    "tqdm",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["mnist_proj*"]

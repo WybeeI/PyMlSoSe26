@@ -1,0 +1,8 @@
+{
+  "epochs": 1,
+  "batch_size": 128,
+  "lr": 0.001,
+  "data_path": "data/mnist",
+  "runs_dir": "runs",
+  "seed": 0
+}

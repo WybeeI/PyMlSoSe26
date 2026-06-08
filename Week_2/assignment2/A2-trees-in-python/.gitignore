@@ -1,0 +1,6 @@
+./results/
+./data/
+./submission.yaml
+./src_reference/
+./src_student_backup/
+./.reference_mode
