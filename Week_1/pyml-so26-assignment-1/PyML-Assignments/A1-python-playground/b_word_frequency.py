@@ -94,6 +94,25 @@ def normalize(text: str) -> list[str]:
     """
 
     # ------ SOLUTION GOES HERE!  ------
+    # Strip, lowercase, split
+    tokens = text.strip().lower().split()
+
+    clean_words = []
+    for tok in tokens:
+        # Debe contener al menos una letra
+        if not any(ch.isalpha() for ch in tok):
+            continue
+
+        # Quitar puntuación simple en bordes
+        tok = tok.strip(".,!?;:\"'()[]{}")
+
+        # Filtrar stopwords
+        if tok in STOPWORDS:
+            continue
+
+        clean_words.append(tok)
+
+    return clean_words
 
 
 def word_frequencies(words: list[str]) -> dict[str, int]:
@@ -110,6 +129,18 @@ def word_frequencies(words: list[str]) -> dict[str, int]:
     """
 
     # ------ SOLUTION GOES HERE!  ------
+    # Contar
+    counts = {}
+    for w in words:
+        counts[w] = counts.get(w, 0) + 1
+
+    # Ordenar:
+    # 1) frecuencia descendente → -count
+    # 2) alfabético ascendente → word
+    sorted_items = sorted(counts.items(), key=lambda x: (-x[1], x[0]))
+
+    # Regresar como dict ordenado
+    return dict(sorted_items)
 
 
 def format_entry(rank: int, word: str, count: int, total: int) -> str:
@@ -140,7 +171,9 @@ def format_entry(rank: int, word: str, count: int, total: int) -> str:
     """
 
     # ------ SOLUTION GOES HERE!  ------
+    percentage = (count / total) * 100
 
+    return f"{rank:>4}. {word:<20}{count:>6}{percentage:>8.2f}%"
 
     """
     Orchestrates the full pipeline and writes a frequency report to a file.
@@ -165,6 +198,8 @@ def format_entry(rank: int, word: str, count: int, total: int) -> str:
     Raises:
         IOError -- if reading from source or writing to output_path fails
     """
+
+
 def write_report(source: str, output_path: str, top_n: int = 10) -> None:
     try:
         # Leer texto

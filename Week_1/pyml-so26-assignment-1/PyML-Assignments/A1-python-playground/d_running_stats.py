@@ -68,7 +68,59 @@ from statistics import StatisticsError
 
 class RunningStats:
     # ------ SOLUTION GOES HERE!  ------
-    pass
+    def __init__(self):
+        self.n = 0
+        self._mean = 0.0
+        self.M2 = 0.0
+
+    def update(self, x):
+        if not isinstance(x, (int, float)):
+            raise TypeError("x must be int or float")
+
+        self.n += 1
+        delta = x - self._mean
+        self._mean += delta / self.n
+        delta2 = x - self._mean
+        self.M2 += delta * delta2
+
+    @property
+    def mean(self):
+        if self.n == 0:
+            raise StatisticsError("mean is undefined with no data")
+        return self._mean
+
+    @property
+    def variance(self):
+        if self.n < 2:
+            raise StatisticsError("variance requires at least two data points")
+        return self.M2 / (self.n - 1)
+
+    @property
+    def std(self):
+        if self.n < 2:
+            raise StatisticsError("std requires at least two data points")
+        return math.sqrt(self.variance)
+
+    def __len__(self):
+        return self.n
+
+    def __repr__(self):
+        if self.n == 0:
+            mean_str = "N/A"
+            std_str = "N/A"
+        elif self.n == 1:
+            mean_str = f"{self._mean:.3f}"
+            std_str = "N/A"
+        else:
+            mean_str = f"{self._mean:.3f}"
+            std_str = f"{self.std:.3f}"
+
+        return f"RunningStats(n={self.n}, mean={mean_str}, std={std_str})"
+
+    def reset(self):
+        self.n = 0
+        self._mean = 0.0
+        self.M2 = 0.0
 
 
 if __name__ == "__main__":

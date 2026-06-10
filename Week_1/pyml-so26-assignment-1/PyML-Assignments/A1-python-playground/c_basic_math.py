@@ -26,6 +26,22 @@ def quadratic_formula(a: float, b: float, c: float) -> tuple:
     """
 
     # ------ SOLUTION GOES HERE!  ------
+    # Discriminante
+    disc = b**2 - 4 * a * c
+
+    if disc < 0:
+        return ()  # No hay raíces reales
+
+    if disc == 0:
+        root = -b / (2 * a)
+        return (root,)
+
+    # Dos raíces reales
+    sqrt_disc = disc**0.5
+    r1 = (-b - sqrt_disc) / (2 * a)
+    r2 = (-b + sqrt_disc) / (2 * a)
+
+    return (min(r1, r2), max(r1, r2))
 
 
 def simpsons_rule(f, a: float, b: float, n: int) -> float:
@@ -49,6 +65,24 @@ def simpsons_rule(f, a: float, b: float, n: int) -> float:
     """
 
     # ------ SOLUTION GOES HERE!  ------
+    # n debe ser par y positivo
+    if n <= 0 or n % 2 != 0:
+        raise ValueError("n must be a positive even integer")
+
+    h = (b - a) / n
+    total = f(a) + f(b)
+
+    # Suma de términos impares (coef 4)
+    odd_sum = 0
+    for i in range(1, n, 2):
+        odd_sum += f(a + i * h)
+
+    # Suma de términos pares (coef 2)
+    even_sum = 0
+    for i in range(2, n, 2):
+        even_sum += f(a + i * h)
+
+    return (h / 3) * (total + 4 * odd_sum + 2 * even_sum)
 
 
 def matrix_mult(A: list[list[float]], B: list[list[float]]) -> list[list[float]]:
@@ -69,6 +103,25 @@ def matrix_mult(A: list[list[float]], B: list[list[float]]) -> list[list[float]]
     """
 
     # ------ SOLUTION GOES HERE!  ------
+    # Dimensiones
+    rows_A = len(A)
+    cols_A = len(A[0])
+    rows_B = len(B)
+    cols_B = len(B[0])
+
+    if cols_A != rows_B:
+        raise ValueError("Number of columns of A must match number of rows of B")
+
+    # Crear matriz resultado
+    result = [[0.0 for _ in range(cols_B)] for _ in range(rows_A)]
+
+    # Multiplicación estándar
+    for i in range(rows_A):
+        for j in range(cols_B):
+            for k in range(cols_A):
+                result[i][j] += A[i][k] * B[k][j]
+
+    return result
 
 
 if __name__ == "__main__":
