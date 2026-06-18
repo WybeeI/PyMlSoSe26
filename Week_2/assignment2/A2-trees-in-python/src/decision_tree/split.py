@@ -63,4 +63,64 @@ def best_split(
     """
 
     # ------ WRITE YOUR CODE HERE ------
-    pass
+
+    n_samples = len(y)
+    n_features = len(X[0])
+
+    if feature_types is None:
+        feature_types = ["numeric"] * n_features
+
+    best_feature = None
+    best_value = None
+    best_gain = 0.0
+
+    # Recorremos cada feature
+    for j in range(n_features):
+        column = [row[j] for row in X]
+        ftype = feature_types[j]
+
+        # -------------------------
+        # NUMERIC FEATURE
+        # -------------------------
+        if ftype == "numeric":
+            thresholds = candidate_thresholds(column)
+
+            for t in thresholds:
+                y_left = [y[i] for i in range(n_samples) if column[i] <= t]
+                y_right = [y[i] for i in range(n_samples) if column[i] > t]
+
+                if not y_left or not y_right:
+                    continue  # split inválido
+
+                gain = information_gain(y, y_left, y_right, criterion)
+
+                if gain > best_gain:
+                    best_gain = gain
+                    best_feature = j
+                    best_value = t
+
+        # -------------------------
+        # CATEGORICAL FEATURE
+        # -------------------------
+        else:
+            categories = set(column)
+
+            for cat in categories:
+                y_left = [y[i] for i in range(n_samples) if column[i] == cat]
+                y_right = [y[i] for i in range(n_samples) if column[i] != cat]
+
+                if not y_left or not y_right:
+                    continue
+
+                gain = information_gain(y, y_left, y_right, criterion)
+
+                if gain > best_gain:
+                    best_gain = gain
+                    best_feature = j
+                    best_value = cat
+
+    # Si no hubo ganancia positiva
+    if best_gain <= 0:
+        return None
+
+    return (best_feature, best_value, best_gain)

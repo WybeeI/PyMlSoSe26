@@ -31,7 +31,6 @@ def plot_decision_boundary(
 
     mesh_points = [[a, b] for b in grid_x2 for a in grid_x1]
     mesh_preds = model.predict(mesh_points, stop_depth=stop_depth)
-
     nx, ny = len(grid_x1), len(grid_x2)
     Z = [mesh_preds[row * nx : (row + 1) * nx] for row in range(ny)]
 

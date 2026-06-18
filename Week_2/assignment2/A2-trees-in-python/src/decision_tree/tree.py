@@ -98,7 +98,13 @@ class DecisionTreeClassifier:
             DecisionTreeClassifier -- self, to allow method chaining
         """
         # ------ WRITE YOUR CODE HERE ------
-        pass
+        if not X or not y:
+            raise ValueError("X and y cannot be empty")
+        if len(X) != len(y):
+            raise ValueError("X and y must have the same length")
+        # print("grow send")
+        self.root = self._grow(X, y, depth=0)
+        return self
 
     def predict(
         self,
@@ -126,7 +132,14 @@ class DecisionTreeClassifier:
             list[int] -- predicted class label for each sample
         """
         # ------ WRITE YOUR CODE HERE ------
-        pass
+        if self.root is None:
+            raise RuntimeError("Tree has not been fitted")
+
+        preds = []
+        for x in X:
+            _, pred = self._predict_one(x, self.root, stop_depth, stop_below)
+            preds.append(pred)
+        return preds
 
     def predict_with_depth(
         self,
@@ -143,7 +156,12 @@ class DecisionTreeClassifier:
         Accepts the same stop_depth and stop_below arguments as predict.
         """
         # ------ WRITE YOUR CODE HERE ------
-        pass
+        if self.root is None:
+            raise RuntimeError("Tree has not been fitted")
+
+        return [
+            self._predict_one(x, self.root, stop_depth, stop_below) for x in X
+        ]
 
     @staticmethod
     def _predict_one(
@@ -168,18 +186,47 @@ class DecisionTreeClassifier:
         """
 
         # ------ WRITE YOUR CODE HERE ------
-        pass
+        depth = 0
+        current = node
+
+        while True:
+            """if current.prediction is None:
+                print("None")"""
+            # stopping conditions
+            if current.is_leaf:
+                return current.prediction, depth
+
+            if stop_depth is not None and depth >= stop_depth:
+                return current.prediction, depth
+
+            if stop_below is not None and current.n_samples < stop_below:
+                return current.prediction, depth
+
+            # numeric split
+            if current.threshold is not None:
+                if x[current.feature] <= current.threshold:
+                    current = current.left
+                else:
+                    current = current.right
+
+            # categorical split
+            else:
+                if x[current.feature] == current.category_value:
+                    current = current.left
+                else:
+                    current = current.right
+
+            depth += 1
 
     @staticmethod
-    def _majority(y: list[int]) -> int:
-        """
-        Returns the most common label in y, breaking ties by smallest
-        label.
-        """
-        counts: dict[int, int] = {}
+    def _majority(self, y):
+        # sin Counter
+        # pero algo como:
+        counts = {}
         for label in y:
             counts[label] = counts.get(label, 0) + 1
-        return min(counts.items(), key=lambda kv: (-kv[1], kv[0]))[0]
+        print("MAJORITY CALLED WITH y =", y)
+        return max(counts, key=counts.get)
 
     def _grow(self, X: list[list], y: list[int], depth: int) -> Node:
         """
@@ -203,4 +250,68 @@ class DecisionTreeClassifier:
         """
 
         # ------ WRITE YOUR CODE HERE ------
-        pass
+        node = Node(n_samples=len(y))
+        # print("in grow")
+        """if node.prediction is None:
+            print("None")"""
+        # stopping: pure node
+        if len(set(y)) == 1:
+            node.prediction = y[0]
+            return node
+
+        # stopping: too few samples
+        if len(y) < self.min_samples_split:
+            node.prediction = self._majority(y)
+            return node
+
+        # stopping: max depth reached
+        if self.max_depth is not None and depth >= self.max_depth:
+            node.prediction = self._majority(y)
+            return node
+
+        # find best split
+        split = best_split(X, y, self._impurity, self.feature_types)
+        if split is None:
+            node.prediction = self._majority(y)
+            return node
+
+        feature, value, gain = split
+        node.feature = feature
+
+        # numeric split
+        if isinstance(value, float):
+            node.threshold = value
+            X_left, y_left = [], []
+            X_right, y_right = [], []
+
+            for xi, yi in zip(X, y):
+                if xi[feature] <= value:
+                    X_left.append(xi)
+                    y_left.append(yi)
+                else:
+                    X_right.append(xi)
+                    y_right.append(yi)
+
+        # categorical split
+        else:
+            node.category_value = value
+            X_left, y_left = [], []
+            X_right, y_right = [], []
+
+            for xi, yi in zip(X, y):
+                if xi[feature] == value:
+                    X_left.append(xi)
+                    y_left.append(yi)
+                else:
+                    X_right.append(xi)
+                    y_right.append(yi)
+
+        print("SPLIT at depth", depth)
+        print("  y_left =", y_left)
+        print("  y_right =", y_right)
+
+        # recursive children
+        node.left = self._grow(X_left, y_left, depth + 1)
+        node.right = self._grow(X_right, y_right, depth + 1)
+
+        return node

@@ -34,7 +34,13 @@ def gini(y: list[int]) -> float:
     """
 
     # ------ WRITE YOUR CODE HERE ------
-    pass
+    if not y:
+        return 0.0
+
+    total = len(y)
+    classes = set(y)
+
+    return 1.0 - sum((y.count(c) / total) ** 2 for c in classes)
 
 
 def entropy(y: list[int]) -> float:
@@ -52,7 +58,19 @@ def entropy(y: list[int]) -> float:
     """
 
     # ------ WRITE YOUR CODE HERE ------
-    pass
+    if not y:
+        return 0.0
+
+    total = len(y)
+    classes = set(y)
+
+    ent = 0.0
+    for c in classes:
+        p = y.count(c) / total
+        if p > 0:
+            ent -= p * math.log2(p)
+
+    return ent
 
 
 def information_gain(
@@ -80,4 +98,19 @@ def information_gain(
     """
 
     # ------ WRITE YOUR CODE HERE ------
-    pass
+    if not y:
+        raise ValueError("Parent list y cannot be empty")
+
+    if len(y_left) + len(y_right) != len(y):
+        raise ValueError("Left + right sizes must equal parent size")
+
+    total = len(y)
+
+    w_left = len(y_left) / total
+    w_right = len(y_right) / total
+
+    return (
+        criterion(y)
+        - w_left * criterion(y_left)
+        - w_right * criterion(y_right)
+    )
